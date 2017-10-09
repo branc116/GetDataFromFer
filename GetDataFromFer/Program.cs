@@ -1,12 +1,55 @@
 ﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GetDataFromFer
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            try
+            {
+                var cookie = System.Environment.GetEnvironmentVariable("FERCMS") ?? System.IO.File.ReadAllText("CMScookie");
+                if (cookie == null)
+                {
+                    Console.WriteLine("ERROR!!!");
+                    Console.WriteLine("Add FERCMS variable to your envirement variables");
+                    return;
+                }
+
+                Log.InitConsole();
+                Log.WriteToFile("FerLog.log");
+                Log.Start();
+                var sync = new Sync(cookie);
+                if (args.Length == 0)
+                {
+                    Console.WriteLine("Usage of this program is:\n>program [list of wanted classes you want to sync] [local path you want to sync to]\neg:\n>program os oop mat3r fiz2r C:\\ferShit\n");
+                    Console.WriteLine("Or you can only specify the local path and every class you are taking will be selected\nEg.\n>program C:\\ferShit\n");
+                    return;
+                }
+                else if (args.Length == 1)
+                {
+                    var path = args[0];
+                    await sync.SyncFolderForAllClasses(path);
+                }
+                else
+                {
+                        var path = args.Last();
+                        var classes = args.Take(args.Length - 1).ToArray();
+                        await sync.SyncFolderForClass(path, classes);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FATAL ERROR!!!\ndafuq did you do???\n{ex}");
+                Console.ReadKey();
+            }
+
+            Log.LogData("Done", $"Press any key to exit", Console.WindowHeight - 1);
+            await Task.Delay(1000);
+            Log.Stop();
+            Console.ReadKey();
         }
     }
 }

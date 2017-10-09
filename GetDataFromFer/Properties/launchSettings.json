@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GetDataFromFer": {
+      "commandName": "Project",
+      "commandLineArgs": "./testing/"
+    }
+  }
+}
