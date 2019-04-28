@@ -6,11 +6,18 @@ namespace GetDataFromFer
 {
     class Program
     {
+        private static readonly string CMSFileName = "CMScookie";
         static async Task Main(string[] args)
         {
             try
             {
-                var cookie = System.Environment.GetEnvironmentVariable("FERCMS") ?? System.IO.File.ReadAllText("CMScookie");
+                if (!System.IO.File.Exists(CMSFileName))
+                {
+                    Console.WriteLine("Enter your CMS cookie");
+                    var cms = Console.ReadLine();
+                    await System.IO.File.WriteAllTextAsync(CMSFileName, cms);
+                }
+                var cookie = System.IO.File.ReadAllText(CMSFileName);
                 if (cookie == null)
                 {
                     Console.WriteLine("ERROR!!!");
@@ -42,8 +49,10 @@ namespace GetDataFromFer
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"FATAL ERROR!!!\ndafuq did you do???\n{ex}");
-                Console.ReadKey();
+                Console.WriteLine($"FATAL ERROR!!!\nEnter new CMScookie and run again\n{ex}");
+                var cms = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(cms))
+                    await System.IO.File.WriteAllTextAsync(CMSFileName, cms);
             }
 
             Log.LogData("Done", $"Press any key to exit", Console.WindowHeight - 1);

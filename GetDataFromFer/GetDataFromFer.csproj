@@ -1,8 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>getfer</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <Description>Getting data from Fers intranet, keeping it in sync with all you</Description>
+    
+    <Copyright>Branimir Ričko</Copyright>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/branc116/GetDataFromFer</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/branc116/GetDataFromFer</RepositoryUrl>
+    <RepositoryType>Public</RepositoryType>
+    <PackageTags>Fer Data Getting get</PackageTags>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Bug fix</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,8 +29,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.5.5" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
