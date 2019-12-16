@@ -56,7 +56,7 @@ namespace GetDataFromFer
                         Console.CursorLeft = 0;
                         Console.Write(new string(' ', Console.WindowWidth - 1));
                         Console.CursorLeft = 0;
-                        Console.Write(data.Substring(0,Math.Min(data.Length, Console.WindowWidth - 1)));
+                        Console.Write(data.Substring(0,Math.Min(data.Length, Console.WindowWidth - 1)).Replace('\n', ' '));
                         if (_writeToFile && writeToFile)
                         {
                             System.IO.File.AppendAllText(_filePath, data + '\n');

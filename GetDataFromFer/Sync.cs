@@ -16,7 +16,65 @@ namespace GetDataFromFer
         {
             _crawl = new FerCrawl(CMSCookie);
         }
-        
+        public async Task PrintAllClasses(string rootClassName)
+        {
+            var curClassName = rootClassName;
+            var visited = new HashSet<string>();
+            var q = new Queue<string>();
+            q.Enqueue(curClassName);
+            while (q.Count > 0)
+            {
+                curClassName = q.Dequeue();
+                if (visited.Contains(curClassName))
+                    continue;
+                Console.WriteLine(curClassName);
+                visited.Add(curClassName);
+                var res = await _crawl.GetPostuvjet(rootClassName);
+                res.Except(visited).ToList().ForEach(i =>
+                {
+                    q.Enqueue(i);
+                    Console.WriteLine($"   {i}");
+                });
+                res = await _crawl.GetPreduvijet(rootClassName);
+                res.Except(visited).ToList().ForEach(i =>
+                {
+                    q.Enqueue(i);
+                    Console.WriteLine($"   {i}");
+                });
+            }
+        }
+        public async IAsyncEnumerable<string> GetAllClasses()
+        {
+            foreach(var classs in await _crawl.GetAllClasses())
+            {
+                yield return classs;
+            }
+        }
+        public async IAsyncEnumerable<string> GetAllClasses(string rootClassName)
+        {
+            var curClassName = rootClassName;
+            var visited = new HashSet<string>();
+            var q = new Queue<string>();
+            q.Enqueue(curClassName);
+            while (q.Count > 0)
+            {
+                curClassName = q.Dequeue();
+                if (visited.Contains(curClassName))
+                    continue;
+                yield return curClassName;
+                visited.Add(curClassName);
+                var res = await _crawl.GetPostuvjet(curClassName);
+                res.Except(visited).ToList().ForEach(i =>
+                {
+                    q.Enqueue(i);
+                });
+                res = await _crawl.GetPreduvijet(curClassName);
+                res.Except(visited).ToList().ForEach(i =>
+                {
+                    q.Enqueue(i);
+                });
+            }
+        }
         public async Task SyncFolderForAllClasses(string pathOnDisc)
         {
             var tasks = new List<Task>();
@@ -76,14 +134,20 @@ namespace GetDataFromFer
         }
         public async Task SyncFolderForClass(string pathOnDisc, params string[] classNames)
         {
-            var tasks = new List<Task>();
-            int i = 0;
-            foreach(var className in classNames)
+            
+            var sum = 0;
+            const int batch = 10;
+            while (sum < classNames.Length)
             {
-                tasks.Add(SyncFolderForClass(pathOnDisc, className, i));
-                i++;
+                var tasks = new List<Task>();
+                for (int i = 0; i < batch && i + sum < classNames.Length; i++)
+                {
+                    tasks.Add(SyncFolderForClass(pathOnDisc, classNames[i + sum], i));
+                }
+                await Task.WhenAll(tasks);
+                sum += batch;
             }
-            await Task.WhenAll(tasks);
+
         }
         private async Task<int> SyncFolders(string pathOnDisc, string className, Item[] items, int id)
         {
@@ -132,8 +196,8 @@ namespace GetDataFromFer
                                                                 .Replace("*", string.Empty)
                                                                 .Replace("?", string.Empty));
                     tasks.Add(SyncFolders(newItem, className, item.items, id));
-                        
-                }    
+
+                }
             }
             await Task.WhenAll(downloadTasks);
             

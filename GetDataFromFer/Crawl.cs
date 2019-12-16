@@ -95,6 +95,50 @@ namespace GetDataFromFer
             }
             return null;
         }
+        public async Task<List<string>> GetAllClasses()
+        {
+            var html = await DecodeGzipAsync(await _client.GetAsync($"https://www.fer.unizg.hr/predmet"));
+            var htmldoc = new HtmlAgilityPack.HtmlDocument();
+            htmldoc.LoadHtml(html);
+            var classNames = htmldoc.DocumentNode
+                .SelectNodes("//div[@class='course-alphabetic']//a[@href]")
+                ?.Select(i => i.GetAttributeValue("href", null))
+                .Where(i => i != null)
+                .Select(i => i.Split('/').Last())
+                .Distinct()
+                .ToList() ?? new List<string>();
+            return classNames;
+        }
+        public async Task<List<string>> GetPostuvjet(string className)
+        {
+            var html = await DecodeGzipAsync(await _client.GetAsync($"https://www.fer.unizg.hr/predmet/{className}"));
+            var htmldoc = new HtmlAgilityPack.HtmlDocument();
+            htmldoc.LoadHtml(html);
+            var classNames = htmldoc.DocumentNode
+                .SelectNodes("//a[@class='linkPostuvjet']")
+                ?.Select(i => i.GetAttributeValue("href", null))
+                .Where(i => i != null)
+                .Select(i => i.Split('/').Last())
+                .ToList() ?? new List<string>();
+            return classNames;
+        }
+        public async Task<List<string>> GetPreduvijet(string className)
+        {
+            var html = await DecodeGzipAsync(await _client.GetAsync($"https://www.fer.unizg.hr/predmet/{className}"));
+            var htmldoc = new HtmlAgilityPack.HtmlDocument();
+            htmldoc.LoadHtml(html);
+            var links = htmldoc.DocumentNode
+                .SelectNodes("//a[@class='linkPreduvjet']")
+                ?.ToList();
+            if (links == null)
+                return new List<string>();
+           var classNames = links
+                ?.Select(i => i?.GetAttributeValue("href", null))
+                .Where(i => i != null)
+                .Select(i => i.Split('/').Last())
+                .ToList() ?? new List<string>();
+            return classNames;
+        }
         public async Task Login(string userName, string pass)
         {
             try
@@ -120,7 +164,7 @@ namespace GetDataFromFer
             }
             catch (Exception ex)
             {
-                Log.LogData("Error", "Error while getting the resopounse from ferWeb", Console.WindowHeight - 1);
+                Log.LogData("Error", $"Error while getting the resopounse from ferWeb {className} {actionName}", Console.WindowHeight - 1);
                 throw;
             }
         }
@@ -132,7 +176,7 @@ namespace GetDataFromFer
                 
             }catch(Exception ex)
             {
-                Log.LogData("Error", "Error while getting the resopounse from ferWeb", Console.WindowHeight - 1);
+                Log.LogData("Error", $"Error while getting the resopounse from ferWeb - {className}", Console.WindowHeight - 1);
                 throw;
             }
         }
@@ -162,7 +206,7 @@ namespace GetDataFromFer
                 return files;
             }catch(Exception ex)
             {
-                //Log.LogData("Error", $"Error decoding - res:\n{res}", Console.WindowHeight - 1);
+                Log.LogData("Error", $"Error decoding - res:\n", Console.WindowHeight - 1);
             }
             return null;
         }
@@ -190,7 +234,7 @@ namespace GetDataFromFer
                 await getRes.Content.CopyToAsync(fileStream);
             }catch(Exception ex)
             {
-                Log.LogData("Error", "Error happened while trying to download the file from ferWeb", Console.WindowHeight - 1);
+                Log.LogData("Error", $"Error happened while trying to download the file from ferWeb {uri} {pathOnDisc}", Console.WindowHeight - 1);
             }
         }
     }

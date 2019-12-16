@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace GetDataFromFer
                 {
                     Console.WriteLine("Usage of this program is:\n>program [list of wanted classes you want to sync] [local path you want to sync to]\neg:\n>program os oop mat3r fiz2r C:\\ferShit\n");
                     Console.WriteLine("Or you can only specify the local path and every class you are taking will be selected\nEg.\n>program C:\\ferShit\n");
+                    Console.WriteLine("GetAll: GetDataFromFer C:\\FerData\\ all");
                     return;
                 }
                 else if (args.Length == 1)
@@ -40,8 +42,17 @@ namespace GetDataFromFer
                     var path = args[0];
                     await sync.SyncFolderForAllClasses(path);
                 }
-                else
+                else if (args.Length == 2 && args[0] == "all")
                 {
+                    var allClasses = sync.GetAllClasses();
+                    var all = new List<string>();
+                    await foreach (var classs in allClasses)
+                    {
+                        all.Add(classs);
+                    }
+                    await sync.SyncFolderForClass(args[1], all.ToArray());
+                }
+                else {
                         var path = args.Last();
                         var classes = args.Take(args.Length - 1).ToArray();
                         await sync.SyncFolderForClass(path, classes);
@@ -56,7 +67,6 @@ namespace GetDataFromFer
             }
 
             Log.LogData("Done", $"Press any key to exit", Console.WindowHeight - 1);
-            await Task.Delay(1000);
             Log.Stop();
             Console.ReadKey();
         }
