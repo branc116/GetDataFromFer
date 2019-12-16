@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/branc116/GetDataFromFer</RepositoryUrl>
     <RepositoryType>Public</RepositoryType>
     <PackageTags>Fer Data Getting get</PackageTags>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <PackageReleaseNotes>Bug fix</PackageReleaseNotes>
   </PropertyGroup>
 

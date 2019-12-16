@@ -5,8 +5,9 @@
 
 ## How to run
 * Download binary from somewhare.
+* Download binary from Nuget: `dotnet tool install --global GetDataFromFer`
 * Build it yourself:
-  * Download dotnet core 2.0
+  * Download dotnet core 3.1
   * > `git clone https://github.com/branc116/GetDataFromFer`
   * > `cd GetDataFromFer`
   * > `dotnet restore`
